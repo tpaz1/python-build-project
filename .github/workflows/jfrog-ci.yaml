@@ -1,0 +1,64 @@
+name: Build and Upload Python Package to JFrog
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v3
+        with:
+          version: latest
+
+      - name: Configure JFrog CLI
+        run: |
+          jf config add jfrog-server \
+            --url ${{ secrets.JF_URL }} \
+            --user ${{ secrets.JF_USER }} \
+            --password ${{ secrets.JF_PASSWORD }}
+
+      - name: Set Build Info
+        run: |
+          jf rt build-clean
+          jf rt build-name "python-jfrog-demo"
+          jf rt build-number $GITHUB_RUN_NUMBER
+
+      - name: Set up Virtual Env and Capture Dependencies
+        run: |
+          jf pip --repo-resolve python-remote --repo-deploy python-local
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          jf pip install -r requirements.txt \
+            --build-name=python-jfrog-demo \
+            --build-number=$GITHUB_RUN_NUMBER \
+            --module=python-deps
+
+      - name: Build .whl
+        run: |
+          source venv/bin/activate
+          pip install build
+          python -m build
+
+      - name: Upload .whl to Artifactory
+        run: |
+          jf rt upload "dist/*.whl" "pypi-local/" \
+            --build-name=python-jfrog-demo \
+            --build-number=$GITHUB_RUN_NUMBER \
+            --module=package-python-artifact
+
+      - name: Publish Build Info
+        run: |
+          jf rt build-publish python-jfrog-demo $GITHUB_RUN_NUMBER
