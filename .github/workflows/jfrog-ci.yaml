@@ -42,7 +42,7 @@ jobs:
 
       - name: Set up Virtual Env and Capture Dependencies
         run: |
-          jf pip --repo-resolve python-remote --repo-deploy python-local
+          jf pipc --repo-resolve python-remote --repo-deploy python-local
           python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
