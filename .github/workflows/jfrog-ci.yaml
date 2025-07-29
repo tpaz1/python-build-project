@@ -22,17 +22,15 @@ jobs:
         env:
           JF_URL: ${{ vars.JF_URL }}
           JF_ACCESS_TOKEN: ${{ secrets.JF_PASSWORD }}
-    #   - name: Install JFrog CLI
-    #     uses: jfrog/setup-jfrog-cli@v3
-    #     with:
-    #       version: latest
 
-    #   - name: Configure JFrog CLI
-    #     run: |
-    #       jf config add jfrog-server \
-    #         --url ${{ secrets.JF_URL }} \
-    #         --user ${{ secrets.JF_USER }} \
-    #         --password ${{ secrets.JF_PASSWORD }}
+      - name: Configure JFrog CLI
+        run: |
+          jf config add jfrog-server \
+            --url ${{ secrets.JF_URL }} \
+            --access-token ${{ secrets.JF_PASSWORD }} \
+            --interactive=false \
+            --overwrite=true
+          jf rt bce python-jfrog-demo $GITHUB_RUN_NUMBER
 
     #   - name: Set Build Info
     #     run: |
