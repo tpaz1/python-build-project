@@ -57,7 +57,7 @@ jobs:
 
       - name: Upload .whl to Artifactory
         run: |
-          jf rt upload "dist/*.whl" "pypi-local/" \
+          jf rt upload "dist/*.whl" "python-local/" \
             --build-name=python-jfrog-demo \
             --build-number=$GITHUB_RUN_NUMBER \
             --module=package-python-artifact
