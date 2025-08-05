@@ -47,7 +47,7 @@ jobs:
           jf pip install -r requirements.txt \
             --build-name=python-jfrog-demo \
             --build-number=$GITHUB_RUN_NUMBER \
-            --module=python-deps
+            --module=package-python-artifact
 
       - name: Build .whl
         run: |
